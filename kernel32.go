@@ -108,7 +108,7 @@ func WaitForSingleObject(hHandle HANDLE, msecs uint32) (ok bool, e error) {
 
 // https://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
 func CreateFileA(lpFileName LPCTSTR, dwDesiredAccess DWORD, dwSharedMode DWORD, lpSecurityAttributes *SECURITY_ATTRIBUTES, dwCreationDisposition DWORD, dwFlagsAndAttributes DWORD, hTemplateFile HANDLE) (handle HANDLE, err error) {
-	ret, _, err := procCreateFile.Call(
+	ret, _, err := procCreateFileA.Call(
 		uintptr(lpFileName),      // The starting address of the region to allocate
 		uintptr(dwDesiredAccess), // The size of the region of memory to allocate, in bytes.
 		uintptr(dwSharedMode),

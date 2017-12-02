@@ -14,7 +14,8 @@ var (
 	modkernel32 = syscall.NewLazyDLL("kernel32.dll")
 
 	procCloseHandle                = modkernel32.NewProc("CloseHandle")
-	procCreateFile                  = modkernel32.NewProc("CreateFile")
+	procCreateFileA                = modkernel32.NewProc("CreateFileA")
+	procCreateFileW                = modkernel32.NewProc("CreateFileW")
 	procCreateProcessA             = modkernel32.NewProc("CreateProcessA")
 	procCreateProcessW             = modkernel32.NewProc("CreateProcessW")
 	procCreateRemoteThread         = modkernel32.NewProc("CreateRemoteThread")
@@ -106,7 +107,7 @@ func WaitForSingleObject(hHandle HANDLE, msecs uint32) (ok bool, e error) {
 }
 
 // https://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
-func CreateFile(lpFileName LPCTSTR, dwDesiredAccess DWORD, dwSharedMode DWORD, lpSecurityAttributes *SECURITY_ATTRIBUTES, dwCreationDisposition DWORD, dwFlagsAndAttributes DWORD, hTemplateFile HANDLE) (handle HANDLE, err error) {
+func CreateFileA(lpFileName LPCTSTR, dwDesiredAccess DWORD, dwSharedMode DWORD, lpSecurityAttributes *SECURITY_ATTRIBUTES, dwCreationDisposition DWORD, dwFlagsAndAttributes DWORD, hTemplateFile HANDLE) (handle HANDLE, err error) {
 	ret, _, err := procCreateFile.Call(
 		uintptr(lpFileName),      // The starting address of the region to allocate
 		uintptr(dwDesiredAccess), // The size of the region of memory to allocate, in bytes.
@@ -120,6 +121,24 @@ func CreateFile(lpFileName LPCTSTR, dwDesiredAccess DWORD, dwSharedMode DWORD, l
 	}
 	return ret, nil
 }
+
+/*
+// https://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
+func CreateFileW(lpFileName LPCTSTR, dwDesiredAccess DWORD, dwSharedMode DWORD, lpSecurityAttributes *SECURITY_ATTRIBUTES, dwCreationDisposition DWORD, dwFlagsAndAttributes DWORD, hTemplateFile HANDLE) (handle HANDLE, err error) {
+	ret, _, err := procCreateFile.Call(
+		uintptr(lpFileName),      // The starting address of the region to allocate
+		uintptr(dwDesiredAccess), // The size of the region of memory to allocate, in bytes.
+		uintptr(dwSharedMode),
+		uintptr(lpSecurityAttributes),
+		uintptr(dwCreationDisposition),
+		uintptr(dwFlagsAndAttributes),
+		uintptr(hTemplateFile))
+	if int(ret) == 0 {
+		return ret, err
+	}
+	return ret, nil
+}
+*/
 
 func CreateProcessW(
 	lpApplicationName, lpCommandLine string,

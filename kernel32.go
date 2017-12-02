@@ -14,10 +14,12 @@ var (
 	modkernel32 = syscall.NewLazyDLL("kernel32.dll")
 
 	procCloseHandle                = modkernel32.NewProc("CloseHandle")
+	proCreateFile                  = modkernel32.NewProc("CreateFile")
 	procCreateProcessA             = modkernel32.NewProc("CreateProcessA")
 	procCreateProcessW             = modkernel32.NewProc("CreateProcessW")
 	procCreateRemoteThread         = modkernel32.NewProc("CreateRemoteThread")
 	procCreateToolhelp32Snapshot   = modkernel32.NewProc("CreateToolhelp32Snapshot")
+	procDeviceIoControl            = modkernel32.NewProc("DeviceIoControl")
 	procFindResource               = modkernel32.NewProc("FindResourceW")
 	procGetConsoleScreenBufferInfo = modkernel32.NewProc("GetConsoleScreenBufferInfo")
 	procGetConsoleWindow           = modkernel32.NewProc("GetConsoleWindow")
@@ -101,6 +103,22 @@ func WaitForSingleObject(hHandle HANDLE, msecs uint32) (ok bool, e error) {
 	}
 	return
 
+}
+
+// https://msdn.microsoft.com/en-us/library/windows/desktop/aa363858(v=vs.85).aspx
+func CreateFile(lpFileName LPCTSTR, dwDesiredAccess DWORD, dwSharedMode DWORD, lpSecurityAttributes *SECURITY_ATTRIBUTES, dwCreationDisposition DWORD, dwFlagsAndAttributes DWORD, hTemplateFile HANDLE) (handle HANDLE, err error) {
+	ret, _, err := procCreateFile.Call(
+		uintptr(lpFileName),      // The starting address of the region to allocate
+		uintptr(dwDesiredAccess), // The size of the region of memory to allocate, in bytes.
+		uintptr(dwSharedMode),
+		uintptr(lpSecurityAttributes),
+		uintptr(dwCreationDisposition),
+		uintptr(dwFlagsAndAttributes),
+		uintptr(hTemplateFile))
+	if int(ret) == 0 {
+		return ret, err
+	}
+	return ret, nil
 }
 
 func CreateProcessW(
@@ -480,6 +498,21 @@ func CreateToolhelp32Snapshot(flags, processId uint32) HANDLE {
 	}
 
 	return HANDLE(ret)
+}
+
+// https://msdn.microsoft.com/en-us/library/windows/desktop/aa363216(v=vs.85).aspx
+func DeviceIoControl(hDevice HANDLE, dwIoControlCode DWORD, lpInBuffer LPVOID, nInBufferSize DWORD, lpOutBuffer LPVOID, nOutBufferSize DWORD, lpBytesReturned LPDWORD, lpOverlapped *OVERLAPPED) uint32 {
+	ret, _, _ := procDeviceIoControl.Call(
+		uintptr(hDevice),
+		uintptr(dwIoControlCode),
+		uintptr(lpInBuffer),
+		uintptr(nInBufferSize),
+		uintptr(lpOutBuffer),
+		uintptr(nOutBufferSize),
+		uintptr(lpBytesReturned),
+		uintptr(lpOverlapped))
+
+	return uint32(ret)
 }
 
 func Module32First(snapshot HANDLE, me *MODULEENTRY32) bool {

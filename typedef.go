@@ -211,6 +211,9 @@ type (
 	HTHUMBNAIL      HANDLE
 	HWND            HANDLE
 	LPARAM          uintptr
+	LPCTSTR         *uint16
+	LPDWORD         *uint32
+	LPVOID          unsafe.Pointer
 	LPCVOID         unsafe.Pointer
 	LRESULT         uintptr
 	PVOID           unsafe.Pointer
@@ -1265,4 +1268,14 @@ type SECURITY_ATTRIBUTES struct {
 	Length             uint32
 	SecurityDescriptor uintptr
 	InheritHandle      BOOL
+}
+
+type OVERLAPPED struct {
+	Internal      ULONG_PTR
+	InternalHigh  ULONG_PTR
+	InheritHandle BOOL
+	Offset        DWORD
+	OffsetHigh    DWORD
+	Pointer       PVOID
+	hEvent        HANDLE
 }

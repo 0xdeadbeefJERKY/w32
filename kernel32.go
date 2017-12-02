@@ -14,7 +14,7 @@ var (
 	modkernel32 = syscall.NewLazyDLL("kernel32.dll")
 
 	procCloseHandle                = modkernel32.NewProc("CloseHandle")
-	proCreateFile                  = modkernel32.NewProc("CreateFile")
+	procCreateFile                  = modkernel32.NewProc("CreateFile")
 	procCreateProcessA             = modkernel32.NewProc("CreateProcessA")
 	procCreateProcessW             = modkernel32.NewProc("CreateProcessW")
 	procCreateRemoteThread         = modkernel32.NewProc("CreateRemoteThread")
